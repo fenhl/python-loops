@@ -73,7 +73,7 @@ class Loop(threading.Thread):
                 if iter_thread.stopped: # iterator exhausted
                     return
                 else: # iterator has yielded a value
-                    self.process_value(value)
+                    self.process_value(iter_thread.value)
                     iter_thread = IterThread(iterator)
                     iter_thread.start() # get the next value
             time.sleep(self.sleep_length.total_seconds())
