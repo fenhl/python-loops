@@ -1,6 +1,6 @@
 `loops` is a Python 3 module which provides several utilities for asynchronously controlling loops.
 
-This is `loops` version 1.0.1 ([semver](http://semver.org/)). The versioned API includes the `Loop` class, as described in its docstring.
+This is `loops` version 1.0.2 ([semver](http://semver.org/)). The versioned API includes the `Loop` class, as described in its docstring.
 
 Requirements
 ============
