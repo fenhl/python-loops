@@ -1,5 +1,6 @@
 import datetime
 import threading
+import time
 
 def parse_version_string():
     import os
