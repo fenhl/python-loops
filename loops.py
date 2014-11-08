@@ -77,6 +77,7 @@ class Loop(threading.Thread):
                     self.process_value(iter_thread.value)
                     iter_thread = IterThread(iterator)
                     iter_thread.start() # get the next value
+                    continue
             time.sleep(self.sleep_length.total_seconds())
     
     @staticmethod
@@ -90,3 +91,62 @@ class Loop(threading.Thread):
     
     def stop(self):
         self.stopped = True
+
+def timeout_single(iterable, timeout, sleep_length=datetime.timedelta(seconds=0.5)):
+    """This function creates an iterator that yields from the given iterable, but aborts when the iterable takes too long to yield a value.
+    
+    Required arguments:
+    iterable -- The iterable to yield from.
+    timeout -- A datetime.timedelta representing the maximum time the iterable may take to produce a single value. If any iteration step takes longer than this, the iteration is aborted.
+    
+    Optional arguments:
+    sleep_length -- A datetime.timedelta representing how long to sleep between each check for the next value. Will be truncated to the remainder of the timeout. Defaults to half a second.
+    
+    Yields:
+    The values from `iterable', until it is exhausted or `timeout' is reached.
+    """
+    iterator = iter(iterable)
+    current_timeout = timeout
+    iter_thread = IterThread(iterator)
+    iter_thread.start() # get the first value
+    while current_timeout > datetime.timedelta():
+        current_sleep_length = min(sleep_length, current_timeout)
+        time.sleep(current_sleep_length.total_seconds())
+        current_timeout -= current_sleep_length
+        if not iter_thread.is_alive():
+            if iter_thread.stopped: # iterator exhausted
+                return
+            else: # iterator has yielded a value
+                yield iter_thread.value
+                current_timeout = timeout
+                iter_thread = IterThread(iterator)
+                iter_thread.start() # get the next value
+
+def timeout_total(iterable, timeout, sleep_length=datetime.timedelta(seconds=0.5)):
+    """This function creates an iterator that yields from the given iterable, but aborts after a timeout.
+    
+    Required arguments:
+    iterable -- The iterable to yield from.
+    timeout -- A datetime.timedelta representing how long after iteration is started it should be aborted.
+    
+    Optional arguments:
+    sleep_length -- A datetime.timedelta representing how long to sleep between each check for the next value. Will be truncated to the remainder of the timeout. Defaults to half a second.
+    
+    Yields:
+    The values from `iterable', until it is exhausted or `timeout' is reached.
+    """
+    iterator = iter(iterable)
+    current_timeout = timeout
+    iter_thread = IterThread(iterator)
+    iter_thread.start() # get the first value
+    while current_timeout > datetime.timedelta():
+        current_sleep_length = min(sleep_length, current_timeout)
+        time.sleep(current_sleep_length.total_seconds())
+        current_timeout -= current_sleep_length
+        if not iter_thread.is_alive():
+            if iter_thread.stopped: # iterator exhausted
+                return
+            else: # iterator has yielded a value
+                yield iter_thread.value
+                iter_thread = IterThread(iterator)
+                iter_thread.start() # get the next value
