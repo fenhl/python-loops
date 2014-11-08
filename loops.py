@@ -53,7 +53,9 @@ class Loop(threading.Thread):
     """
     def __init__(self, *, iterable=None, process_value=None, sleep_length=datetime.timedelta(seconds=0.5)):
         super().__init__()
-        if iterable is not None:
+        if iterable is None:
+            self.iterable = self.iterable()
+        else:
             self.iterable = iterable
         if process_value is not None:
             self.process_value = process_value
