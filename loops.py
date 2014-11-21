@@ -48,10 +48,11 @@ class Loop(threading.Thread):
     
     Keyword-only arguments:
     iterable -- The iterable to be looped over. By default, self.get_iterable is called.
+    on_exception -- What to do when an exception occurs in process_value. If given, must be an iterable of actions, which will be done in order. Possible actions are 'log_stdout' (write traceback to sys.stdout), 'log_stderr' (write traceback to sys.stderr), or 'raise' (the default; lets the exception through to threading's default handling). Set to an empty iterable to ignore exceptions and continue the loop.
     process_value -- A function which will be called with each yielded value as argument. Defaults to self.process_value.
     sleep_length -- A datetime.timedelta representing how long to sleep between each check for the next value or the stop signal. Defaults to half a second.
     """
-    def __init__(self, *, iterable=None, process_value=None, sleep_length=datetime.timedelta(seconds=0.5)):
+    def __init__(self, *, iterable=None, on_exception=('raise',), process_value=None, sleep_length=datetime.timedelta(seconds=0.5)):
         super().__init__()
         if iterable is None:
             self.iterable = self.iterable()
@@ -76,7 +77,18 @@ class Loop(threading.Thread):
                 if iter_thread.stopped: # iterator exhausted
                     return
                 else: # iterator has yielded a value
-                    self.process_value(iter_thread.value)
+                    try:
+                        self.process_value(iter_thread.value)
+                    except:
+                        for exception_action in self.on_exception:
+                            if exception_action == 'log_stdout':
+                                traceback.print_exc(file=sys.stdout)
+                            elif exception_action == 'log_stderr':
+                                traceback.print_exc(file=sys.stderr)
+                            elif exception_action == 'raise':
+                                raise
+                            else:
+                                raise ValueError('Unrecognized exception action: {!r}'.format(exception_action))
                     iter_thread = IterThread(iterator)
                     iter_thread.start() # get the next value
                     continue
