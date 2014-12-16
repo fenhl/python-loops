@@ -58,6 +58,7 @@ class Loop(threading.Thread):
             self.iterable = self.iterable()
         else:
             self.iterable = iterable
+        self.on_exception = tuple(on_exception)
         if process_value is not None:
             self.process_value = process_value
         self.stopped = False
