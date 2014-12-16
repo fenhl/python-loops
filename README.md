@@ -1,6 +1,6 @@
 `loops` is a Python 3 module which provides several utilities for asynchronously controlling loops.
 
-This is `loops` version 1.2.0 ([semver](http://semver.org/)). The versioned API includes the functions `timeout_single` and `timeout_total` and the `Loop` class, as described in their docstrings.
+This is `loops` version 1.2.1 ([semver](http://semver.org/)). The versioned API includes the functions `timeout_single` and `timeout_total` and the `Loop` class, as described in their docstrings.
 
 Requirements
 ============
