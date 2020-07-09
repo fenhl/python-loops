@@ -2,7 +2,10 @@ import datetime
 import threading
 import time
 
-from loops.version import __version__
+try:
+    from loops.version import __version__
+except ImportError:
+    __version__ = None
 
 class IterThread(threading.Thread):
     """Helper class used in loops."""
